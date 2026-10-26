@@ -18,6 +18,7 @@ from backend.app.routers.plans import router as plans_router
 from backend.app.routers.projects import router as projects_router
 from backend.app.routers.tasks import router as tasks_router
 from backend.app.routers.threed import router as threed_router
+from backend.app.routers.civic import router as civic_router
 
 
 @asynccontextmanager
@@ -76,6 +77,7 @@ app.include_router(materials_router)
 app.include_router(ml_router)
 app.include_router(assistant_router)
 app.include_router(threed_router)
+app.include_router(civic_router)
 
 
 @app.get("/")

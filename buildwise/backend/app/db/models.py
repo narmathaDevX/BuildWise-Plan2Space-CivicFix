@@ -310,4 +310,48 @@ class ShareLink(Base):
     created_at = Column(DateTime(timezone=True), default=utc_now)
 
 
+class CivicPlotComplaint(Base):
+    __tablename__ = "civic_plot_complaints"
+
+    id = Column(String(36), primary_key=True, default=generate_uuid)
+    ticket_id = Column(String(32), unique=True, index=True, nullable=False)
+    user_id = Column(String(36), ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
+    project_id = Column(String(36), ForeignKey("projects.id", ondelete="SET NULL"), nullable=True)
+    title = Column(String(200), nullable=False)
+    description = Column(Text, nullable=False)
+    category = Column(String(80), nullable=False)
+    location = Column(String(255), nullable=False)
+    priority = Column(String(20), default="Medium")
+    status = Column(String(30), default="Submitted")
+    assigned_department = Column(String(100), nullable=True)
+    image_url = Column(String(500), nullable=True)
+    resolution_notes = Column(Text, nullable=True)
+    resolved_by = Column(String(100), nullable=True)
+    resolved_at = Column(DateTime(timezone=True), nullable=True)
+    created_at = Column(DateTime(timezone=True), default=utc_now)
+    updated_at = Column(DateTime(timezone=True), default=utc_now, onupdate=utc_now)
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "id": self.id,
+            "ticket_id": self.ticket_id,
+            "title": self.title,
+            "description": self.description,
+            "category": self.category,
+            "location": self.location,
+            "priority": self.priority,
+            "status": self.status,
+            "assigned_department": self.assigned_department or "Pending Department Assignment",
+            "image_url": self.image_url,
+            "resolution": {
+                "notes": self.resolution_notes,
+                "resolved_by": self.resolved_by,
+                "resolved_at": self.resolved_at.isoformat() if self.resolved_at else None,
+            } if self.resolution_notes else None,
+            "created_at": self.created_at.isoformat() if self.created_at else None,
+            "updated_at": self.updated_at.isoformat() if self.updated_at else None,
+        }
+
+
+
 

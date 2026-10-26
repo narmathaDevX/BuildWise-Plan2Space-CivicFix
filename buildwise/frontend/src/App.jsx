@@ -15,6 +15,7 @@ import {
   Boxes,
   FileText,
   BookmarkCheck,
+  Building2,
   LogIn,
   LogOut,
   User as UserIcon,
@@ -28,6 +29,7 @@ import SavedPlans from "./pages/SavedPlans";
 import Construction from "./pages/Construction";
 import Materials from "./pages/Materials";
 import Reports from "./pages/Reports";
+import CivicFixHub from "./pages/CivicFixHub";
 import AuthModal from "./components/AuthModal";
 
 
@@ -135,6 +137,10 @@ function App() {
     {
       name: "Reports",
       icon: FileText,
+    },
+    {
+      name: "CivicFix Hub",
+      icon: Building2,
     },
   ];
 
@@ -383,6 +389,12 @@ function App() {
           <Reports
             key={`rep-${projectVersion}`}
             projectVersion={projectVersion}
+          />
+
+        ) : activePage === "CivicFix Hub" ? (
+
+          <CivicFixHub
+            key={`civic-${projectVersion}`}
           />
 
         ) : (

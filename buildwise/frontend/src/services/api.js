@@ -518,3 +518,32 @@ export async function streamPlanChat({
   }
 }
 
+/* ============================================================
+   CIVICFIX PLOT & MUNICIPAL PORTAL CLIENT
+============================================================ */
+
+export async function getCivicOverview(location = "") {
+  const query = location ? `?location=${encodeURIComponent(location)}` : "";
+  return request(`/api/civic/overview${query}`);
+}
+
+export async function getCivicComplaints(location = "", statusFilter = "all") {
+  const params = new URLSearchParams();
+  if (location) params.append("location", location);
+  if (statusFilter && statusFilter !== "all") params.append("status_filter", statusFilter);
+  const qs = params.toString() ? `?${params.toString()}` : "";
+  return request(`/api/civic/complaints${qs}`);
+}
+
+export async function submitCivicComplaint(payload) {
+  return request("/api/civic/complaints", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function getCivicComplaintByTicket(ticketId) {
+  return request(`/api/civic/complaints/${encodeURIComponent(ticketId)}`);
+}
+
+
