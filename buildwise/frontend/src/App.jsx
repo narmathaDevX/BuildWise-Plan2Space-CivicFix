@@ -36,7 +36,15 @@ import AuthModal from "./components/AuthModal";
 function App() {
   const { theme, toggleTheme } = useTheme();
 
-  const [activePage, setActivePage] = useState("Dashboard");
+  const [activePage, setActivePage] = useState(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("page") === "civic" || window.location.hash === "#civic") {
+        return "CivicFix Hub";
+      }
+    }
+    return "Dashboard";
+  });
   const [showGeneratedPlan, setShowGeneratedPlan] = useState(false);
   const [generatedForm, setGeneratedForm] = useState(null);
 

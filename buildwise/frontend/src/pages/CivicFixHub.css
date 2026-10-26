@@ -1,0 +1,720 @@
+/* ============================================================
+   CIVICFIX HUB DESIGN SYSTEM & STYLES (BuildWise Native)
+============================================================ */
+
+.civic-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 30px 24px 60px;
+  font-family: inherit;
+  color: var(--text, #24221f);
+}
+
+/* --- Hero Banner --- */
+.civic-hero {
+  background: linear-gradient(135deg, #1e1b4b 0%, #0f172a 100%);
+  border-radius: 20px;
+  padding: 36px 40px;
+  color: #ffffff;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.15);
+  margin-bottom: 24px;
+  position: relative;
+  overflow: hidden;
+}
+
+.civic-hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  background: rgba(99, 102, 241, 0.2);
+  border: 1px solid rgba(165, 180, 252, 0.3);
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #c7d2fe;
+  margin-bottom: 14px;
+}
+
+.civic-hero-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 30px;
+  flex-wrap: wrap;
+}
+
+.civic-hero-text h1 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  line-height: 1.2;
+}
+
+.civic-hero-text p {
+  margin: 10px 0 0;
+  color: #94a3b8;
+  font-size: 14px;
+  max-width: 620px;
+  line-height: 1.5;
+}
+
+/* Health Gauge Card */
+.civic-gauge-card {
+  background: rgba(30, 41, 59, 0.85);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(51, 65, 85, 0.9);
+  border-radius: 16px;
+  padding: 16px 22px;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  min-width: 250px;
+}
+
+.civic-gauge-circle {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  font-weight: 900;
+  border: 4px solid;
+}
+
+.gauge-optimal {
+  border-color: #10b981;
+  color: #34d399;
+  background: rgba(6, 78, 59, 0.3);
+}
+
+.gauge-moderate {
+  border-color: #f59e0b;
+  color: #fbbf24;
+  background: rgba(120, 53, 15, 0.3);
+}
+
+.gauge-high-risk {
+  border-color: #f43f5e;
+  color: #fb7185;
+  background: rgba(136, 19, 55, 0.3);
+}
+
+.civic-gauge-meta .label {
+  font-size: 10px;
+  text-transform: uppercase;
+  font-weight: 800;
+  letter-spacing: 0.8px;
+  color: #94a3b8;
+}
+
+.civic-gauge-meta .value {
+  font-size: 16px;
+  font-weight: 800;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 2px;
+}
+
+.civic-gauge-meta .sub {
+  font-size: 11px;
+  color: #64748b;
+  margin-top: 2px;
+}
+
+/* Search Bar & Area Pills */
+.civic-search-section {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(51, 65, 85, 0.7);
+}
+
+.civic-search-form {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.civic-search-input-wrap {
+  position: relative;
+  flex: 1;
+}
+
+.civic-search-input-wrap svg {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #94a3b8;
+}
+
+.civic-search-input {
+  width: 100%;
+  padding: 12px 14px 12px 42px;
+  background: rgba(15, 23, 42, 0.9);
+  border: 1px solid #334155;
+  border-radius: 10px;
+  color: #ffffff;
+  font-size: 14px;
+  font-family: inherit;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.civic-search-input:focus {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25);
+}
+
+.civic-search-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 24px;
+  background: #6366f1;
+  color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.civic-search-btn:hover {
+  background: #4f46e5;
+}
+
+.civic-quick-chips {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  font-size: 12px;
+}
+
+.civic-chip {
+  padding: 6px 14px;
+  border-radius: 999px;
+  border: 1px solid #334155;
+  background: rgba(30, 41, 59, 0.6);
+  color: #cbd5e1;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.civic-chip:hover {
+  background: #334155;
+  color: #ffffff;
+}
+
+.civic-chip.active {
+  background: #6366f1;
+  border-color: #6366f1;
+  color: #ffffff;
+}
+
+/* Context Strip */
+.civic-context-strip {
+  background: rgba(99, 102, 241, 0.08);
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  border-radius: 12px;
+  padding: 12px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  font-size: 13px;
+  color: #312e81;
+}
+
+[data-theme="dark"] .civic-context-strip {
+  background: rgba(99, 102, 241, 0.15);
+  color: #c7d2fe;
+}
+
+.civic-link-btn {
+  background: none;
+  border: none;
+  color: #4f46e5;
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Navigation Tabs */
+.civic-tabs {
+  display: flex;
+  gap: 12px;
+  border-bottom: 2px solid var(--border, #ddd6cc);
+  margin-bottom: 24px;
+  overflow-x: auto;
+}
+
+.civic-tab-btn {
+  padding: 12px 18px;
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  color: var(--text-soft, #69635c);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: -2px;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.civic-tab-btn:hover {
+  color: var(--text, #24221f);
+}
+
+.civic-tab-btn.active {
+  color: #4f46e5;
+  border-bottom-color: #4f46e5;
+}
+
+/* Key Metrics Cards */
+.civic-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.civic-kpi-card {
+  background: var(--surface, #ffffff);
+  border: 1px solid var(--border, #ddd6cc);
+  border-radius: 14px;
+  padding: 20px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+}
+
+.civic-kpi-card .kpi-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  font-weight: 800;
+  color: var(--text-muted, #9a9389);
+  letter-spacing: 0.5px;
+}
+
+.civic-kpi-card .kpi-num {
+  font-size: 28px;
+  font-weight: 800;
+  margin-top: 6px;
+  color: var(--text, #24221f);
+}
+
+.civic-kpi-card .kpi-sub {
+  font-size: 12px;
+  margin-top: 4px;
+  color: var(--text-soft, #69635c);
+}
+
+/* Advisory Banner */
+.civic-advisory-box {
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  border-radius: 14px;
+  padding: 20px;
+  margin-bottom: 24px;
+}
+
+[data-theme="dark"] .civic-advisory-box {
+  background: #261f0d;
+  border-color: #78350f;
+}
+
+.civic-advisory-title {
+  font-size: 14px;
+  font-weight: 800;
+  color: #92400e;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+[data-theme="dark"] .civic-advisory-title {
+  color: #fde68a;
+}
+
+.civic-advisory-list {
+  margin: 12px 0 0 20px;
+  padding: 0;
+  color: #78350f;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+[data-theme="dark"] .civic-advisory-list {
+  color: #fef3c7;
+}
+
+/* Departments Grid */
+.civic-depts-card {
+  background: var(--surface, #ffffff);
+  border: 1px solid var(--border, #ddd6cc);
+  border-radius: 14px;
+  padding: 24px;
+}
+
+.civic-depts-title {
+  font-size: 16px;
+  font-weight: 800;
+  margin: 0 0 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.civic-depts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 12px;
+}
+
+.civic-dept-item {
+  padding: 14px 18px;
+  background: var(--surface-2, #f5f1eb);
+  border: 1px solid var(--border, #ddd6cc);
+  border-radius: 10px;
+}
+
+.civic-dept-cat {
+  font-size: 10px;
+  text-transform: uppercase;
+  font-weight: 800;
+  color: #4f46e5;
+  letter-spacing: 0.5px;
+}
+
+.civic-dept-name {
+  font-size: 14px;
+  font-weight: 700;
+  margin-top: 4px;
+  color: var(--text, #24221f);
+}
+
+/* Form Styling */
+.civic-form-card {
+  background: var(--surface, #ffffff);
+  border: 1px solid var(--border, #ddd6cc);
+  border-radius: 16px;
+  padding: 32px;
+  max-width: 720px;
+}
+
+.civic-form-title {
+  font-size: 20px;
+  font-weight: 800;
+  margin: 4px 0 0;
+}
+
+.civic-form-sub {
+  color: var(--text-soft, #69635c);
+  font-size: 13px;
+  margin: 6px 0 24px;
+}
+
+.civic-form-group {
+  margin-bottom: 20px;
+}
+
+.civic-form-label {
+  display: block;
+  font-size: 11px;
+  text-transform: uppercase;
+  font-weight: 800;
+  color: var(--text-soft, #69635c);
+  margin-bottom: 8px;
+  letter-spacing: 0.5px;
+}
+
+.civic-input,
+.civic-textarea,
+.civic-select {
+  width: 100%;
+  padding: 12px 14px;
+  background: var(--bg, #f5f1eb);
+  border: 1px solid var(--border, #ddd6cc);
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: inherit;
+  color: var(--text, #24221f);
+  box-sizing: border-box;
+  outline: none;
+}
+
+.civic-input:focus,
+.civic-textarea:focus,
+.civic-select:focus {
+  border-color: #6366f1;
+}
+
+.civic-cat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 10px;
+}
+
+.civic-cat-pill {
+  padding: 12px;
+  background: var(--bg, #f5f1eb);
+  border: 1px solid var(--border, #ddd6cc);
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text, #24221f);
+  text-align: left;
+  transition: all 0.2s ease;
+}
+
+.civic-cat-pill.selected {
+  background: rgba(99, 102, 241, 0.1);
+  border-color: #6366f1;
+  color: #4f46e5;
+}
+
+.civic-submit-btn {
+  padding: 14px 28px;
+  background: #4f46e5;
+  color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
+}
+
+.civic-submit-btn:hover {
+  background: #4338ca;
+}
+
+/* Tracker Layout */
+.civic-tracker-layout {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 24px;
+}
+
+@media (max-width: 860px) {
+  .civic-tracker-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.civic-tickets-panel {
+  background: var(--surface, #ffffff);
+  border: 1px solid var(--border, #ddd6cc);
+  border-radius: 14px;
+  padding: 16px;
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+.civic-ticket-card {
+  width: 100%;
+  padding: 12px 14px;
+  background: var(--surface-2, #f5f1eb);
+  border: 1px solid var(--border, #ddd6cc);
+  border-radius: 10px;
+  text-align: left;
+  cursor: pointer;
+  margin-bottom: 10px;
+  transition: all 0.2s ease;
+}
+
+.civic-ticket-card.active {
+  border-color: #6366f1;
+  background: rgba(99, 102, 241, 0.08);
+}
+
+.civic-ticket-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.ticket-id {
+  font-family: monospace;
+  font-weight: 700;
+  font-size: 12px;
+  color: #4f46e5;
+}
+
+.civic-badge {
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+  border: 1px solid;
+}
+
+.badge-resolved {
+  background: #ecfdf5;
+  color: #065f46;
+  border-color: #a7f3d0;
+}
+
+.badge-in-progress {
+  background: #eff6ff;
+  color: #1e40af;
+  border-color: #bfdbfe;
+}
+
+.badge-submitted {
+  background: #f8fafc;
+  color: #475569;
+  border-color: #cbd5e1;
+}
+
+/* Stepper View */
+.civic-stepper-panel {
+  background: var(--surface, #ffffff);
+  border: 1px solid var(--border, #ddd6cc);
+  border-radius: 14px;
+  padding: 28px;
+}
+
+.civic-stepper {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  text-align: center;
+  margin: 24px 0;
+}
+
+.civic-step-node {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.civic-step-circle {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #e2e8f0;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 13px;
+  margin-bottom: 6px;
+}
+
+.civic-step-circle.done {
+  background: #10b981;
+  color: #ffffff;
+}
+
+.civic-step-circle.current {
+  background: #4f46e5;
+  color: #ffffff;
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2);
+}
+
+.civic-step-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-soft, #69635c);
+}
+
+.civic-step-title.active {
+  color: var(--text, #24221f);
+}
+
+/* Resolution signed note */
+.civic-resolution-card {
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  border-radius: 10px;
+  padding: 16px;
+  margin-top: 20px;
+}
+
+[data-theme="dark"] .civic-resolution-card {
+  background: #064e3b;
+  border-color: #047857;
+}
+
+.civic-res-header {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: #065f46;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+[data-theme="dark"] .civic-res-header {
+  color: #a7f3d0;
+}
+
+.civic-res-body {
+  font-size: 13px;
+  color: #047857;
+  line-height: 1.5;
+}
+
+[data-theme="dark"] .civic-res-body {
+  color: #ecfdf5;
+}
+
+.civic-res-signer {
+  margin-top: 8px;
+  font-size: 11px;
+  color: #065f46;
+}
+
+[data-theme="dark"] .civic-res-signer {
+  color: #6ee7b7;
+}
+
+/* History Log */
+.civic-history-list {
+  background: var(--surface, #ffffff);
+  border: 1px solid var(--border, #ddd6cc);
+  border-radius: 14px;
+  padding: 24px;
+}
+
+.civic-history-item {
+  padding: 18px 0;
+  border-bottom: 1px solid var(--border, #ddd6cc);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
+}
+
+.civic-history-item:last-child {
+  border-bottom: none;
+}
