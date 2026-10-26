@@ -28,6 +28,13 @@ import {
   submitCivicComplaint,
 } from "../services/api";
 
+const PRESET_AREAS = [
+  "Anna Nagar, Chennai",
+  "T. Nagar, Chennai",
+  "Velachery, Chennai",
+  "OMR / Perungudi, Chennai",
+];
+
 const CATEGORIES = [
   { id: "Roads & Footpaths", label: "Roads & Access Damage", icon: Truck, color: "text-amber-600 bg-amber-50 border-amber-200" },
   { id: "Water & Sanitation", label: "Drainage & Water Supply", icon: Droplets, color: "text-blue-600 bg-blue-50 border-blue-200" },
@@ -35,7 +42,7 @@ const CATEGORIES = [
   { id: "Garbage & Waste", label: "Construction Debris & Waste", icon: Trash2, color: "text-emerald-600 bg-emerald-50 border-emerald-200" },
 ];
 
-export default function CivicFixHub({ currentProjectLocation = "Plot 42, 2nd Main Road, Anna Nagar, Chennai" }) {
+export default function CivicFixHub({ currentProjectLocation = "Anna Nagar, Chennai" }) {
   const [activeTab, setActiveTab] = useState("overview"); // overview | file | tracker | history
   const [locationQuery, setLocationQuery] = useState(currentProjectLocation);
   const [overview, setOverview] = useState(null);
@@ -65,9 +72,14 @@ export default function CivicFixHub({ currentProjectLocation = "Plot 42, 2nd Mai
         getCivicComplaints(loc, statusFilter),
       ]);
       setOverview(ovRes);
-      setComplaints(compRes.complaints || []);
-      if (compRes.complaints?.length && !selectedTicket) {
-        setSelectedTicket(compRes.complaints[0]);
+      const fetchedComplaints = compRes.complaints || [];
+      setComplaints(fetchedComplaints);
+
+      // Keep selection or pick the first complaint
+      if (fetchedComplaints.length > 0) {
+        setSelectedTicket(fetchedComplaints[0]);
+      } else {
+        setSelectedTicket(null);
       }
     } catch (err) {
       console.error("Failed to load CivicFix data:", err);
@@ -76,9 +88,20 @@ export default function CivicFixHub({ currentProjectLocation = "Plot 42, 2nd Mai
     }
   };
 
+  const handleAreaChange = (newArea) => {
+    setLocationQuery(newArea);
+    setFormData((prev) => ({
+      ...prev,
+      location: prev.location.includes("Plot")
+        ? `Plot Site, ${newArea}`
+        : newArea,
+    }));
+    loadData(newArea);
+  };
+
   useEffect(() => {
     loadData(locationQuery);
-  }, [locationQuery, statusFilter]);
+  }, [statusFilter]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -90,7 +113,7 @@ export default function CivicFixHub({ currentProjectLocation = "Plot 42, 2nd Mai
       setSubmitting(true);
       setErrorBanner(null);
       const res = await submitCivicComplaint(formData);
-      setSuccessBanner(res.message || "Complaint registered successfully!");
+      setSuccessBanner(res.message || "Complaint registered successfully with CivicFix!");
       setFormData({
         title: "",
         description: "",
@@ -100,7 +123,7 @@ export default function CivicFixHub({ currentProjectLocation = "Plot 42, 2nd Mai
         image_url: "",
       });
       // Refresh list
-      loadData(locationQuery);
+      await loadData(locationQuery);
       if (res.complaint) {
         setSelectedTicket(res.complaint);
         setActiveTab("tracker");
@@ -130,8 +153,8 @@ export default function CivicFixHub({ currentProjectLocation = "Plot 42, 2nd Mai
     }
   };
 
-  const healthScore = overview?.health_summary?.health_score || 88;
-  const healthRisk = overview?.health_summary?.risk_level || "LOW";
+  const healthScore = overview?.health_summary?.health_score ?? 98;
+  const healthRisk = overview?.health_summary?.risk_level ?? "LOW";
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto px-4 sm:px-6 py-6">
@@ -174,25 +197,82 @@ export default function CivicFixHub({ currentProjectLocation = "Plot 42, 2nd Mai
           </div>
         </div>
 
-        {/* Location Query Bar */}
-        <div className="mt-6 pt-5 border-t border-slate-700/70 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-          <div className="flex-1 relative">
-            <MapPin className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
-            <input
-              type="text"
-              value={locationQuery}
-              onChange={(e) => setLocationQuery(e.target.value)}
-              placeholder="Search by plot location, street, or municipal ward..."
-              className="w-full pl-10 pr-4 py-2.5 bg-slate-900/90 border border-slate-700 rounded-lg text-sm text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            />
-          </div>
-          <button
-            onClick={() => loadData(locationQuery)}
-            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold rounded-lg transition"
+        {/* Location / Area Name Query Bar */}
+        <div className="mt-6 pt-5 border-t border-slate-700/70 space-y-3">
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              loadData(locationQuery);
+            }}
+            className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3"
           >
-            <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} /> Query Area Health
-          </button>
+            <div className="flex-1 relative">
+              <MapPin className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+              <input
+                type="text"
+                value={locationQuery}
+                onChange={(e) => setLocationQuery(e.target.value)}
+                placeholder="Enter area or ward name (e.g. Anna Nagar, T. Nagar, Velachery, OMR)..."
+                className="w-full pl-10 pr-4 py-2.5 bg-slate-900/90 border border-slate-700 rounded-lg text-sm text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              />
+            </div>
+            <button
+              type="submit"
+              className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold rounded-lg transition shadow-md"
+            >
+              <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} /> Query Area Health
+            </button>
+          </form>
+
+          {/* Quick preset area pills */}
+          <div className="flex items-center gap-2 flex-wrap text-xs">
+            <span className="text-slate-400 font-medium">Quick Select Area:</span>
+            {PRESET_AREAS.map((area) => (
+              <button
+                key={area}
+                type="button"
+                onClick={() => handleAreaChange(area)}
+                className={`px-3 py-1 rounded-full border transition ${
+                  locationQuery.toLowerCase().includes(area.split(",")[0].toLowerCase())
+                    ? "bg-indigo-600 border-indigo-500 text-white font-semibold"
+                    : "bg-slate-800/80 border-slate-700 text-slate-300 hover:bg-slate-700"
+                }`}
+              >
+                {area}
+              </button>
+            ))}
+            <button
+              type="button"
+              onClick={() => handleAreaChange("")}
+              className={`px-3 py-1 rounded-full border transition ${
+                locationQuery === ""
+                  ? "bg-indigo-600 border-indigo-500 text-white font-semibold"
+                  : "bg-slate-800/80 border-slate-700 text-slate-300 hover:bg-slate-700"
+              }`}
+            >
+              All Incidents
+            </button>
+          </div>
         </div>
+      </div>
+
+      {/* Area Context Banner */}
+      <div className="bg-indigo-50 border border-indigo-100 rounded-xl px-4 py-3 flex items-center justify-between text-xs text-indigo-900">
+        <div className="flex items-center gap-2">
+          <MapPin className="w-4 h-4 text-indigo-600" />
+          <span>
+            Active Area Filter: <strong>{locationQuery || "All Neighborhoods"}</strong> ({complaints.length} tickets recorded)
+          </span>
+        </div>
+        <button
+          onClick={() => {
+            setFormData((prev) => ({ ...prev, location: locationQuery || "Plot Site" }));
+            setActiveTab("file");
+          }}
+          className="font-bold text-indigo-600 hover:text-indigo-800 flex items-center gap-1"
+        >
+          <PlusCircle className="w-3.5 h-3.5" /> File Complaint for this Area
+        </button>
       </div>
 
       {/* Tabs Navigation */}
@@ -273,15 +353,15 @@ export default function CivicFixHub({ currentProjectLocation = "Plot 42, 2nd Mai
             <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
               <div className="text-xs uppercase font-bold text-slate-400">Total Area Incidents</div>
               <div className="text-2xl font-extrabold text-slate-900 mt-1">
-                {overview?.health_summary?.total_reported ?? 3}
+                {overview?.health_summary?.total_reported ?? complaints.length}
               </div>
-              <div className="text-xs text-slate-500 mt-1">Reported within 500m of plot</div>
+              <div className="text-xs text-slate-500 mt-1">Recorded for {locationQuery || "all areas"}</div>
             </div>
 
             <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
               <div className="text-xs uppercase font-bold text-slate-400">Active Hazards</div>
               <div className="text-2xl font-extrabold text-rose-600 mt-1">
-                {overview?.health_summary?.active_issues ?? 1}
+                {overview?.health_summary?.active_issues ?? 0}
               </div>
               <div className="text-xs text-rose-600 font-medium mt-1">Currently under resolution</div>
             </div>
@@ -289,7 +369,7 @@ export default function CivicFixHub({ currentProjectLocation = "Plot 42, 2nd Mai
             <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
               <div className="text-xs uppercase font-bold text-slate-400">Resolved Hazards</div>
               <div className="text-2xl font-extrabold text-emerald-600 mt-1">
-                {overview?.health_summary?.resolved_issues ?? 2}
+                {overview?.health_summary?.resolved_issues ?? 0}
               </div>
               <div className="text-xs text-emerald-600 font-medium mt-1">Closed by municipal officers</div>
             </div>
@@ -305,7 +385,7 @@ export default function CivicFixHub({ currentProjectLocation = "Plot 42, 2nd Mai
           <div className="bg-amber-50 border border-amber-200 rounded-xl p-5">
             <h3 className="text-sm font-bold text-amber-900 flex items-center gap-2">
               <ShieldAlert className="w-4 h-4 text-amber-700" />
-              BuildWise Civil Engineering Recommendations for this Plot:
+              BuildWise Civil Engineering Recommendations for {locationQuery || "this Site"}:
             </h3>
             <ul className="mt-2.5 space-y-1.5 text-sm text-amber-800 list-disc list-inside">
               {overview?.health_summary?.civil_advisory?.map((adv, idx) => (
@@ -341,7 +421,10 @@ export default function CivicFixHub({ currentProjectLocation = "Plot 42, 2nd Mai
       {activeTab === "file" && (
         <div className="bg-white rounded-xl border border-slate-200 p-6 sm:p-8 shadow-sm">
           <div className="max-w-2xl">
-            <h2 className="text-xl font-bold text-slate-900">Report an Issue or Hazard for Your Plot</h2>
+            <div className="flex items-center gap-2 text-xs font-semibold uppercase text-indigo-600 tracking-wider">
+              <PlusCircle className="w-4 h-4" /> New Civic Grievance
+            </div>
+            <h2 className="text-xl font-bold text-slate-900 mt-1">Report an Issue or Hazard for Your Plot</h2>
             <p className="text-sm text-slate-500 mt-1">
               Your grievance will be filed with a verifiable ticket ID and directly forwarded to the respective municipal department in CivicFix.
             </p>
@@ -392,9 +475,12 @@ export default function CivicFixHub({ currentProjectLocation = "Plot 42, 2nd Mai
 
               {/* Location */}
               <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-                  Plot Address / Location *
-                </label>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+                    Plot Address / Location *
+                  </label>
+                  <span className="text-xs text-indigo-600 font-medium">Synced with searched area</span>
+                </div>
                 <input
                   type="text"
                   required
@@ -445,7 +531,7 @@ export default function CivicFixHub({ currentProjectLocation = "Plot 42, 2nd Mai
                   type="url"
                   value={formData.image_url}
                   onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
-                  placeholder="https://example.com/site-photo.jpg"
+                  placeholder="https://images.unsplash.com/photo-..."
                   className="w-full px-3.5 py-2.5 border border-slate-300 rounded-lg text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 />
               </div>
@@ -474,31 +560,43 @@ export default function CivicFixHub({ currentProjectLocation = "Plot 42, 2nd Mai
           {/* Complaints list to select */}
           <div className="bg-white rounded-xl border border-slate-200 p-4 shadow-sm h-fit">
             <h3 className="text-sm font-bold text-slate-900 mb-3 flex items-center justify-between">
-              <span>Your Plot Tickets</span>
+              <span>Area Tickets</span>
               <span className="text-xs text-slate-500 font-normal">{complaints.length} tickets</span>
             </h3>
-            <div className="space-y-2">
-              {complaints.map((c) => (
+            {complaints.length > 0 ? (
+              <div className="space-y-2 max-h-[500px] overflow-y-auto pr-1">
+                {complaints.map((c) => (
+                  <button
+                    key={c.ticket_id}
+                    onClick={() => setSelectedTicket(c)}
+                    className={`w-full text-left p-3 rounded-lg border transition ${
+                      selectedTicket?.ticket_id === c.ticket_id
+                        ? "border-indigo-600 bg-indigo-50/50 ring-1 ring-indigo-500/20"
+                        : "border-slate-100 hover:bg-slate-50"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold font-mono text-indigo-700">{c.ticket_id}</span>
+                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${getStatusBadge(c.status)}`}>
+                        {c.status}
+                      </span>
+                    </div>
+                    <div className="text-xs font-semibold text-slate-900 mt-1 line-clamp-1">{c.title}</div>
+                    <div className="text-[11px] text-slate-400 mt-1">{c.category}</div>
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8 text-slate-400 text-xs">
+                No complaints recorded for {locationQuery || "this area"}.
                 <button
-                  key={c.ticket_id}
-                  onClick={() => setSelectedTicket(c)}
-                  className={`w-full text-left p-3 rounded-lg border transition ${
-                    selectedTicket?.ticket_id === c.ticket_id
-                      ? "border-indigo-600 bg-indigo-50/50"
-                      : "border-slate-100 hover:bg-slate-50"
-                  }`}
+                  onClick={() => setActiveTab("file")}
+                  className="mt-2 block w-full py-1.5 px-3 bg-indigo-50 text-indigo-700 rounded font-semibold hover:bg-indigo-100"
                 >
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold font-mono text-indigo-700">{c.ticket_id}</span>
-                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${getStatusBadge(c.status)}`}>
-                      {c.status}
-                    </span>
-                  </div>
-                  <div className="text-xs font-semibold text-slate-900 mt-1 line-clamp-1">{c.title}</div>
-                  <div className="text-[11px] text-slate-400 mt-1">{c.category}</div>
+                  File First Ticket
                 </button>
-              ))}
-            </div>
+              </div>
+            )}
           </div>
 
           {/* Stepper Detail View */}
@@ -578,7 +676,7 @@ export default function CivicFixHub({ currentProjectLocation = "Plot 42, 2nd Mai
                 ) : (
                   <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg text-xs text-blue-800 flex items-center gap-2">
                     <Clock className="w-4 h-4 text-blue-600" />
-                    Assigned municipal engineer has acknowledged the ticket and is dispatching repair crew.
+                    Assigned municipal engineer has acknowledged the ticket and dispatched field crew.
                   </div>
                 )}
               </>
@@ -599,8 +697,10 @@ export default function CivicFixHub({ currentProjectLocation = "Plot 42, 2nd Mai
         <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
             <div>
-              <h3 className="text-base font-bold text-slate-900">Historical Civic Incidents for this Area</h3>
-              <p className="text-xs text-slate-500">Audit trail of past civic problems and municipal resolutions around your plot</p>
+              <h3 className="text-base font-bold text-slate-900">Historical Civic Incidents</h3>
+              <p className="text-xs text-slate-500">
+                Audit trail of past civic problems and municipal resolutions for {locationQuery || "all areas"}
+              </p>
             </div>
             
             {/* Filter buttons */}
@@ -631,7 +731,7 @@ export default function CivicFixHub({ currentProjectLocation = "Plot 42, 2nd Mai
                       <span className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full border ${getStatusBadge(c.status)}`}>
                         {c.status}
                       </span>
-                      <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full border ${getPriorityBadge(c.priority)}`}>
+                      <span className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full border ${getPriorityBadge(c.priority)}`}>
                         {c.priority}
                       </span>
                       <span className="text-xs text-slate-400">
@@ -665,7 +765,7 @@ export default function CivicFixHub({ currentProjectLocation = "Plot 42, 2nd Mai
               ))
             ) : (
               <div className="text-center py-10 text-slate-400 text-sm">
-                No past civic complaints found for this search filter.
+                No past civic complaints recorded for {locationQuery || "this area"}.
               </div>
             )}
           </div>
