@@ -1,4 +1,4 @@
-"""Unit tests for CivicFix Plot & Municipal Portal integration."""
+"""Unit tests for CivicFix Real-Time Municipal API Integration."""
 
 import pytest
 from fastapi.testclient import TestClient
@@ -14,8 +14,9 @@ def test_civic_overview_endpoint():
     data = res.json()
     assert "health_summary" in data
     assert "health_score" in data["health_summary"]
+    assert "connection_status" in data
     assert "departments" in data
-    assert len(data["departments"]) > 0
+    assert "complaints" in data
 
 
 def test_civic_list_complaints():
@@ -23,14 +24,15 @@ def test_civic_list_complaints():
     assert res.status_code == 200
     data = res.json()
     assert "complaints" in data
-    assert data["count"] >= 3
+    assert "connected" in data
+    assert isinstance(data["complaints"], list)
 
 
 def test_civic_submit_plot_complaint():
     payload = {
         "title": "Blocked drainage culvert in front of Plot 102",
         "description": "Culvert blocked with construction rubble and silt, causing street water to enter site boundary.",
-        "category": "Water & Sanitation",
+        "category": "Water Supply & Drainage",
         "location": "Plot 102, 3rd Avenue, Anna Nagar, Chennai",
         "priority": "High",
     }
@@ -41,7 +43,7 @@ def test_civic_submit_plot_complaint():
     assert "CF-2026-" in data["complaint"]["ticket_id"]
     assert data["complaint"]["priority"] == "High"
 
-    # Test retrieval by ticket ID
+    # Test retrieval by ticket ID from live CivicFix
     ticket_id = data["complaint"]["ticket_id"]
     get_res = client.get(f"/api/civic/complaints/{ticket_id}")
     assert get_res.status_code == 200
