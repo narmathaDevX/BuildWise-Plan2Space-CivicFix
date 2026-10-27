@@ -35,6 +35,8 @@ build/
 *.sqlite3
 
 # Generated uploads and model files
+buildwise/backend/uploads/*
+!buildwise/backend/uploads/.gitkeep
 plan2space-3d/data/uploads/*
 !plan2space-3d/data/uploads/.gitkeep
 plan2space-3d/data/models/*
