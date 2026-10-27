@@ -546,4 +546,33 @@ export async function getCivicComplaintByTicket(ticketId) {
   return request(`/api/civic/complaints/${encodeURIComponent(ticketId)}`);
 }
 
+export async function getCivicUploads() {
+  return request("/api/civic/uploads");
+}
+
+export async function uploadCivicEvidence(file, ticketId = "") {
+  const formData = new FormData();
+  formData.append("file", file);
+  if (ticketId) formData.append("ticket_id", ticketId);
+
+  const url = `${API_BASE_URL}/api/civic/upload`;
+  const headers = {};
+  const token = localStorage.getItem("buildwise_token");
+  if (token) headers["Authorization"] = `Bearer ${token}`;
+
+  const res = await fetch(url, {
+    method: "POST",
+    headers,
+    body: formData,
+  });
+
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => null);
+    throw new Error(errorData?.detail || `Upload failed with status ${res.status}`);
+  }
+
+  return res.json();
+}
+
+
 

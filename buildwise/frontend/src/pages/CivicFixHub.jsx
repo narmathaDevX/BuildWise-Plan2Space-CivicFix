@@ -23,11 +23,17 @@ import {
   HelpCircle,
   Check,
   Radio,
+  Camera,
+  UploadCloud,
+  Eye,
+  X,
 } from "lucide-react";
 import {
   getCivicOverview,
   getCivicComplaints,
   submitCivicComplaint,
+  getCivicUploads,
+  uploadCivicEvidence,
 } from "../services/api";
 
 const PRESET_AREAS = [
@@ -79,6 +85,40 @@ export default function CivicFixHub({ currentProjectLocation = "Anna Nagar, Chen
   const [successBanner, setSuccessBanner] = useState(null);
   const [errorBanner, setErrorBanner] = useState(null);
 
+  // Inter-Service Media Gallery State
+  const [uploadsList, setUploadsList] = useState([]);
+  const [loadingUploads, setLoadingUploads] = useState(false);
+  const [previewModalImg, setPreviewModalImg] = useState(null);
+  const [uploadingFile, setUploadingFile] = useState(false);
+
+  const loadUploads = async () => {
+    try {
+      setLoadingUploads(true);
+      const res = await getCivicUploads();
+      setUploadsList(res.files || []);
+    } catch (err) {
+      console.warn("Could not load uploads list:", err);
+    } finally {
+      setLoadingUploads(false);
+    }
+  };
+
+  const handleFileUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      setUploadingFile(true);
+      const res = await uploadCivicEvidence(file);
+      setSuccessBanner(`Image uploaded! Saved as ${res.filename}`);
+      await loadUploads();
+    } catch (err) {
+      setErrorBanner(`Upload failed: ${err.message}`);
+    } finally {
+      setUploadingFile(false);
+      e.target.value = "";
+    }
+  };
+
   const loadData = async (loc = locationQuery) => {
     try {
       setLoading(true);
@@ -95,6 +135,7 @@ export default function CivicFixHub({ currentProjectLocation = "Anna Nagar, Chen
       } else {
         setSelectedTicket(null);
       }
+      loadUploads();
     } catch (err) {
       console.error("Failed to load live CivicFix data:", err);
     } finally {
@@ -322,6 +363,15 @@ export default function CivicFixHub({ currentProjectLocation = "Anna Nagar, Chen
           className={`civic-tab-btn ${activeTab === "history" ? "active" : ""}`}
         >
           <FileText size={16} /> Historical Area Log ({complaints.length})
+        </button>
+        <button
+          onClick={() => {
+            setActiveTab("uploads");
+            loadUploads();
+          }}
+          className={`civic-tab-btn ${activeTab === "uploads" ? "active" : ""}`}
+        >
+          <Camera size={16} /> Shared Files & Evidence ({uploadsList.length})
         </button>
       </div>
 
@@ -684,6 +734,176 @@ export default function CivicFixHub({ currentProjectLocation = "Anna Nagar, Chen
                 No past civic complaints recorded in CivicFix for {locationQuery || "this area"}.
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* ============================================================
+          TAB 5: SHARED FILES & EVIDENCE GALLERY
+      ============================================================ */}
+      {activeTab === "uploads" && (
+        <div className="civic-gallery-panel">
+          <div className="civic-gallery-header">
+            <div>
+              <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "4px" }}>
+                <span className="civic-badge badge-active" style={{ fontSize: "11px" }}>
+                  Inter-Service Media
+                </span>
+                <span style={{ fontSize: "12px", color: "#64748b" }}>
+                  CivicFix ↔ BuildWise Live Image Exchange
+                </span>
+              </div>
+              <h2 style={{ fontSize: "18px", fontWeight: 800, margin: 0 }}>
+                Shared Evidence & Uploaded Files ({uploadsList.length})
+              </h2>
+            </div>
+
+            <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+              <button
+                onClick={loadUploads}
+                className="civic-search-btn"
+                style={{ padding: "8px 14px", fontSize: "12px" }}
+              >
+                <RefreshCw size={13} className={loadingUploads ? "spin" : ""} /> Refresh Gallery
+              </button>
+
+              <label
+                className="civic-search-btn"
+                style={{
+                  padding: "8px 14px",
+                  fontSize: "12px",
+                  background: "#2563eb",
+                  borderColor: "#1d4ed8",
+                  cursor: "pointer",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "6px",
+                  margin: 0,
+                  color: "#ffffff",
+                }}
+              >
+                <UploadCloud size={14} />
+                {uploadingFile ? "Uploading..." : "Upload Evidence"}
+                <input
+                  type="file"
+                  accept="image/*,video/*"
+                  onChange={handleFileUpload}
+                  style={{ display: "none" }}
+                  disabled={uploadingFile}
+                />
+              </label>
+            </div>
+          </div>
+
+          {loadingUploads ? (
+            <div style={{ textAlign: "center", padding: "50px", color: "#94a3b8" }}>
+              <RefreshCw size={24} className="spin" style={{ margin: "0 auto 10px" }} />
+              <div>Fetching received media from BuildWise server...</div>
+            </div>
+          ) : uploadsList.length > 0 ? (
+            <div className="civic-gallery-grid">
+              {uploadsList.map((file) => (
+                <div key={file.filename} className="civic-media-card">
+                  <div
+                    className="civic-media-preview-wrap"
+                    onClick={() => setPreviewModalImg(file.file_url)}
+                  >
+                    <img
+                      src={file.file_url}
+                      alt={file.filename}
+                      className="civic-media-preview-img"
+                      loading="lazy"
+                      onError={(e) => {
+                        e.target.style.display = "none";
+                      }}
+                    />
+                    <div className="civic-media-overlay">
+                      <Eye size={16} /> Click to Inspect
+                    </div>
+                  </div>
+
+                  <div className="civic-media-meta">
+                    <div className="civic-media-title" title={file.filename}>
+                      {file.filename}
+                    </div>
+                    <div className="civic-media-sub">
+                      <span>{file.size_bytes ? `${Math.round(file.size_bytes / 1024)} KB` : "Image"}</span>
+                      <span>{(file.media_type || "IMAGE").toUpperCase()}</span>
+                    </div>
+
+                    <div className="civic-media-actions">
+                      <button
+                        onClick={() => setPreviewModalImg(file.file_url)}
+                        className="civic-link-btn"
+                        style={{ fontSize: "11px", padding: "4px 8px" }}
+                      >
+                        <Eye size={12} /> Inspect
+                      </button>
+                      <a
+                        href={file.file_url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="civic-link-btn"
+                        style={{ fontSize: "11px", padding: "4px 8px", marginLeft: "auto" }}
+                      >
+                        <ExternalLink size={12} /> Direct Link
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div style={{ textAlign: "center", padding: "50px", color: "#94a3b8" }}>
+              <Camera size={36} style={{ margin: "0 auto 12px", opacity: 0.5 }} />
+              <div style={{ fontSize: "15px", fontWeight: 700, color: "var(--text)" }}>
+                No files received yet
+              </div>
+              <p style={{ maxWidth: "420px", margin: "6px auto 0", fontSize: "13px" }}>
+                When CivicFix calls <code>/api/external/send-image</code> or uploads site photos, they will show up here automatically.
+              </p>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Lightbox Preview Modal */}
+      {previewModalImg && (
+        <div
+          className="civic-lightbox-backdrop"
+          onClick={() => setPreviewModalImg(null)}
+        >
+          <div
+            className="civic-lightbox-card"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div style={{ padding: "14px 20px", display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid rgba(255,255,255,0.1)", background: "rgba(0,0,0,0.4)" }}>
+              <strong style={{ color: "#ffffff", fontSize: "14px" }}>Evidence Image Inspection</strong>
+              <button
+                onClick={() => setPreviewModalImg(null)}
+                style={{ background: "none", border: "none", color: "#94a3b8", cursor: "pointer" }}
+              >
+                <X size={20} />
+              </button>
+            </div>
+            <div className="civic-lightbox-img-wrap">
+              <img
+                src={previewModalImg}
+                alt="Evidence Full View"
+                className="civic-lightbox-img"
+              />
+            </div>
+            <div style={{ padding: "12px 20px", display: "flex", justifyContent: "flex-end", gap: "10px", background: "rgba(0,0,0,0.3)" }}>
+              <a
+                href={previewModalImg}
+                target="_blank"
+                rel="noreferrer"
+                className="primary-button"
+                style={{ fontSize: "12px", padding: "8px 14px", textDecoration: "none" }}
+              >
+                <ExternalLink size={13} style={{ marginRight: "6px" }} /> Open Original in New Tab
+              </a>
+            </div>
           </div>
         </div>
       )}
