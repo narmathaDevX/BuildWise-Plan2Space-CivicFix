@@ -70,3 +70,13 @@ def test_civic_upload_endpoints():
     res2 = client.post("/api/upload", files=files2)
     assert res2.status_code == 201
     assert "/uploads/" in res2.json()["file_url"]
+
+    # Test listing uploads via both endpoints
+    list_res = client.get("/api/civic/uploads")
+    assert list_res.status_code == 200
+    assert "files" in list_res.json()
+    assert list_res.json()["count"] >= 1
+
+    list_res_alias = client.get("/api/uploads")
+    assert list_res_alias.status_code == 200
+    assert list_res_alias.json()["count"] >= 1

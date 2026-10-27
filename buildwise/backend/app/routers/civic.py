@@ -74,6 +74,35 @@ async def upload_evidence_media(
     }
 
 
+@router.get("/uploads")
+async def list_received_uploads(request: Request) -> dict[str, Any]:
+    """Returns a list of all files received on BuildWise server with preview URLs."""
+    if not os.path.exists(UPLOAD_DIR):
+        return {"files": [], "count": 0}
+
+    base = str(request.base_url).rstrip("/")
+    if request.headers.get("x-forwarded-proto") == "https" and base.startswith("http://"):
+        base = base.replace("http://", "https://", 1)
+
+    items = []
+    for fname in sorted(os.listdir(UPLOAD_DIR), reverse=True):
+        if fname.startswith("."):
+            continue
+        fpath = os.path.join(UPLOAD_DIR, fname)
+        if os.path.isfile(fpath):
+            stat = os.stat(fpath)
+            ext = os.path.splitext(fname)[1].lower()
+            items.append({
+                "filename": fname,
+                "file_url": f"{base}/uploads/{fname}",
+                "size_bytes": stat.st_size,
+                "media_type": "video" if ext in {".mp4", ".mov", ".webm"} else "image",
+                "modified_at": stat.st_mtime,
+            })
+
+    return {"files": items, "count": len(items)}
+
+
 @router.get("/overview")
 async def get_civic_overview(
     location: Optional[str] = Query(None, description="Plot location or ward name"),

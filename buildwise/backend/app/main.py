@@ -86,12 +86,18 @@ app.include_router(assistant_router)
 app.include_router(threed_router)
 app.include_router(civic_router)
 
-from backend.app.routers.civic import upload_evidence_media
+from backend.app.routers.civic import upload_evidence_media, list_received_uploads
 app.add_api_route(
     "/api/upload",
     upload_evidence_media,
     methods=["POST"],
     status_code=status.HTTP_201_CREATED,
+    tags=["CivicFix Municipal Portal"]
+)
+app.add_api_route(
+    "/api/uploads",
+    list_received_uploads,
+    methods=["GET"],
     tags=["CivicFix Municipal Portal"]
 )
 
