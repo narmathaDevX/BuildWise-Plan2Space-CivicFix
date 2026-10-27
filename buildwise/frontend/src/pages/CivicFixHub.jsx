@@ -53,7 +53,13 @@ export default function CivicFixHub({ currentProjectLocation = "Anna Nagar, Chen
     return "overview";
   });
 
-  const [locationQuery, setLocationQuery] = useState(currentProjectLocation);
+  const [locationQuery, setLocationQuery] = useState(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("area")) return params.get("area");
+    }
+    return currentProjectLocation;
+  });
   const [overview, setOverview] = useState(null);
   const [complaints, setComplaints] = useState([]);
   const [loading, setLoading] = useState(true);

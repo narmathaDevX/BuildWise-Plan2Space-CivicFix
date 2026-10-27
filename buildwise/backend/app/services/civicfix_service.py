@@ -11,7 +11,45 @@ import httpx
 
 logger = logging.getLogger("buildwise.civicfix")
 
-# Live CivicFix Deployment URL (can be overridden via environment variable)
+import re
+
+GENERIC_LOCATION_TERMS = {
+    "chennai", "tamil", "nadu", "india", "road", "street", "plot", "main",
+    "nagar", "avenue", "lane", "cross", "block", "sector", "zone", "ward",
+}
+
+def normalize_text(text: str) -> str:
+    return re.sub(r"[^\w\s]", " ", (text or "").lower()).strip()
+
+def matches_queried_area(complaint: dict[str, Any], query: str) -> bool:
+    """Matches complaint against a queried locality, preventing false positives from city/state names."""
+    if not query or not query.strip():
+        return True
+
+    loc_str = complaint.get("location") or ""
+    title_str = complaint.get("title") or ""
+    norm_loc = normalize_text(f"{loc_str} {title_str}")
+
+    # Primary locality is the specific area before the comma (e.g., 'Velachery, Chennai' -> 'Velachery')
+    primary = query.split(",")[0].strip()
+    norm_primary = normalize_text(primary)
+
+    # 1. Exact phrase substring match
+    if norm_primary and norm_primary in norm_loc:
+        return True
+
+    # 2. Match non-generic distinct locality tokens (e.g., 'Velachery', 'Perungudi')
+    primary_words = [
+        w for w in norm_primary.split()
+        if w not in GENERIC_LOCATION_TERMS and len(w) >= 2
+    ]
+    if primary_words:
+        return any(w in norm_loc.split() or w in norm_loc for w in primary_words)
+
+    # 3. If user only searched a broad city like 'Chennai', match city
+    norm_full = normalize_text(query)
+    return bool(norm_full and norm_full in norm_loc)
+
 CIVICFIX_API_URL = os.getenv("CIVICFIX_API_URL", "https://civicfix-t3mx.onrender.com").rstrip("/")
 CIVICFIX_SERVICE_EMAIL = os.getenv("CIVICFIX_SERVICE_EMAIL", "buildwise_service@buildwise.internal")
 CIVICFIX_SERVICE_PASSWORD = os.getenv("CIVICFIX_SERVICE_PASSWORD", "BuildWiseSecurePassword2026!")
@@ -228,16 +266,9 @@ class CivicFixService:
                 "complaints": [],
             }
 
-        # Filter complaints by location query if provided
-        filtered = []
+        # Filter complaints accurately by location query if provided
         if location_query and location_query.strip():
-            q = location_query.lower().strip()
-            terms = [t for t in q.replace(",", " ").split() if len(t) > 2]
-
-            for c in raw_complaints:
-                loc_text = f"{c.get('location', '')} {c.get('title', '')} {c.get('category', '')}".lower()
-                if q in loc_text or any(term in loc_text for term in terms):
-                    filtered.append(c)
+            filtered = [c for c in raw_complaints if matches_queried_area(c, location_query)]
         else:
             filtered = raw_complaints
 
