@@ -1,7 +1,10 @@
 """CivicFix Plot & Municipal Portal Router for BuildWise (Live Real-Time Integration)."""
 
+import os
+import shutil
+import uuid
 from typing import Any, Optional
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, Request, UploadFile, status
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
@@ -12,6 +15,12 @@ from backend.app.services.civicfix_service import CivicFixService
 
 router = APIRouter(prefix="/api/civic", tags=["CivicFix Municipal Portal"])
 
+# Locate the uploads directory
+UPLOAD_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "uploads")
+os.makedirs(UPLOAD_DIR, exist_ok=True)
+
+ALLOWED_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp", ".gif", ".mp4", ".mov", ".webm"}
+
 
 class CreatePlotComplaintPayload(BaseModel):
     title: str = Field(..., min_length=5, max_length=200)
@@ -21,6 +30,48 @@ class CreatePlotComplaintPayload(BaseModel):
     priority: str = Field(default="Medium")
     image_url: Optional[str] = None
     project_id: Optional[str] = None
+
+
+@router.post("/upload", status_code=status.HTTP_201_CREATED)
+async def upload_evidence_media(
+    request: Request,
+    file: UploadFile = File(...),
+    ticket_id: Optional[str] = Form(None),
+) -> dict[str, Any]:
+    """Receives evidence photos/videos directly from CivicFix /api/external/send-image.
+
+    Accepts multipart/form-data:
+      - file: Binary image or video file
+      - ticket_id: (Optional) Ticket ID to associate with the uploaded image
+    """
+    ext = os.path.splitext(file.filename or "")[1].lower()
+    if not ext or ext not in ALLOWED_EXTENSIONS:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Unsupported format '{ext}'. Allowed extensions: JPG, JPEG, PNG, WEBP, GIF, MP4, MOV, WEBM.",
+        )
+
+    unique_filename = f"{uuid.uuid4().hex}{ext}"
+    dest_path = os.path.join(UPLOAD_DIR, unique_filename)
+
+    with open(dest_path, "wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
+
+    base = str(request.base_url).rstrip("/")
+    # Handle HTTPS proxies (like Render)
+    if request.headers.get("x-forwarded-proto") == "https" and base.startswith("http://"):
+        base = base.replace("http://", "https://", 1)
+
+    file_url = f"{base}/uploads/{unique_filename}"
+
+    return {
+        "status": "success",
+        "message": "File received and stored successfully on BuildWise server",
+        "filename": unique_filename,
+        "file_url": file_url,
+        "ticket_id": ticket_id,
+        "media_type": "video" if ext in {".mp4", ".mov", ".webm"} else "image",
+    }
 
 
 @router.get("/overview")

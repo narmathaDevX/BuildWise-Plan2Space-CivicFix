@@ -48,3 +48,25 @@ def test_civic_submit_plot_complaint():
     get_res = client.get(f"/api/civic/complaints/{ticket_id}")
     assert get_res.status_code == 200
     assert get_res.json()["complaint"]["ticket_id"] == ticket_id
+
+
+def test_civic_upload_endpoints():
+    import io
+
+    fake_file_content = b"\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x01\x00\x00\x00\x01\x08\x06\x00\x00\x00\x1f\x15c4"
+    files = {"file": ("evidence_hazard.png", io.BytesIO(fake_file_content), "image/png")}
+    form = {"ticket_id": "CF-2026-UPLOAD-01"}
+
+    # Test /api/civic/upload
+    res = client.post("/api/civic/upload", files=files, data=form)
+    assert res.status_code == 201
+    body = res.json()
+    assert body["status"] == "success"
+    assert "/uploads/" in body["file_url"]
+    assert body["ticket_id"] == "CF-2026-UPLOAD-01"
+
+    # Test alias /api/upload
+    files2 = {"file": ("evidence_hazard_2.png", io.BytesIO(fake_file_content), "image/png")}
+    res2 = client.post("/api/upload", files=files2)
+    assert res2.status_code == 201
+    assert "/uploads/" in res2.json()["file_url"]

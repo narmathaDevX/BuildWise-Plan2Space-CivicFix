@@ -7,6 +7,7 @@ bcrypt>=4.1.2
 pyjwt>=2.8.0
 pytest>=7.4.0
 httpx>=0.25.0
+python-multipart>=0.0.9
 python-dotenv>=1.0.0
 google-genai>=2.30.0
 shapely>=2.0.0

@@ -1,3 +1,4 @@
+import os
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 from typing import Any
@@ -6,6 +7,7 @@ from fastapi import FastAPI, Request, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
 
 from backend.app.config import settings
 from backend.app.db.init_db import init_db
@@ -34,6 +36,11 @@ app = FastAPI(
     description="Python backend for BuildWise house construction planning in Tamil Nadu, India.",
     lifespan=lifespan,
 )
+
+# Static file serving for uploads
+UPLOAD_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "uploads")
+os.makedirs(UPLOAD_DIR, exist_ok=True)
+app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
 
 # CORS configuration
 app.add_middleware(
@@ -78,6 +85,15 @@ app.include_router(ml_router)
 app.include_router(assistant_router)
 app.include_router(threed_router)
 app.include_router(civic_router)
+
+from backend.app.routers.civic import upload_evidence_media
+app.add_api_route(
+    "/api/upload",
+    upload_evidence_media,
+    methods=["POST"],
+    status_code=status.HTTP_201_CREATED,
+    tags=["CivicFix Municipal Portal"]
+)
 
 
 @app.get("/")
