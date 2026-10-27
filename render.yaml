@@ -28,6 +28,8 @@ services:
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.10
+      - key: CIVICFIX_API_URL
+        value: https://civicfix-t3mx.onrender.com
 
   # ------------------------------------------------------------
   # 3. BuildWise Frontend: Single Page Application (React / Vite)
