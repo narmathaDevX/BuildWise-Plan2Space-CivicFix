@@ -46,7 +46,10 @@ services:
         destination: /index.html
     envVars:
       - key: VITE_API_BASE_URL
-        value: https://buildwise-backend-ylo3.onrender.com
+        fromService:
+          type: web
+          name: buildwise-backend
+          property: host
       - key: VITE_DESIGN_STUDIO_URL
         fromService:
           type: web
