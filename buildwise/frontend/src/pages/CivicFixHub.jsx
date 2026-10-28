@@ -90,6 +90,24 @@ export default function CivicFixHub({ currentProjectLocation = "Anna Nagar, Chen
   const [loadingUploads, setLoadingUploads] = useState(false);
   const [previewModalImg, setPreviewModalImg] = useState(null);
   const [uploadingFile, setUploadingFile] = useState(false);
+  const [formUploadingFile, setFormUploadingFile] = useState(false);
+
+  const handleFormPhotoUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      setFormUploadingFile(true);
+      const res = await uploadCivicEvidence(file);
+      setFormData((prev) => ({ ...prev, image_url: res.file_url }));
+      setSuccessBanner(`Photo uploaded and attached! (${res.filename})`);
+      await loadUploads();
+    } catch (err) {
+      setErrorBanner(`Photo upload failed: ${err.message}`);
+    } finally {
+      setFormUploadingFile(false);
+      e.target.value = "";
+    }
+  };
 
   const loadUploads = async () => {
     try {
@@ -546,12 +564,80 @@ export default function CivicFixHub({ currentProjectLocation = "Anna Nagar, Chen
             </div>
 
             <div className="civic-form-group">
-              <label className="civic-form-label">Photo / Evidence URL (Optional)</label>
+              <label className="civic-form-label">Photo / Evidence Image (Optional)</label>
+
+              <div style={{ display: "flex", gap: "10px", alignItems: "center", marginBottom: "8px" }}>
+                <label
+                  className="civic-search-btn"
+                  style={{
+                    padding: "8px 14px",
+                    fontSize: "12px",
+                    background: "#2563eb",
+                    borderColor: "#1d4ed8",
+                    color: "#ffffff",
+                    cursor: "pointer",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "6px",
+                    margin: 0,
+                  }}
+                >
+                  <UploadCloud size={14} />
+                  {formUploadingFile ? "Uploading Photo..." : "Choose Photo from Device"}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFormPhotoUpload}
+                    style={{ display: "none" }}
+                    disabled={formUploadingFile}
+                  />
+                </label>
+
+                {formData.image_url && (
+                  <span style={{ fontSize: "12px", color: "#059669", fontWeight: 600 }}>
+                    ✓ Evidence Attached
+                  </span>
+                )}
+              </div>
+
+              {formData.image_url && (
+                <div style={{ position: "relative", display: "inline-block", marginBottom: "10px" }}>
+                  <img
+                    src={formData.image_url}
+                    alt="Evidence Preview"
+                    style={{ maxHeight: "120px", borderRadius: "8px", border: "1px solid #cbd5e1", objectFit: "cover" }}
+                    onError={(e) => { e.target.style.display = "none"; }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setFormData((prev) => ({ ...prev, image_url: "" }))}
+                    style={{
+                      position: "absolute",
+                      top: "4px",
+                      right: "4px",
+                      background: "rgba(0,0,0,0.6)",
+                      color: "#ffffff",
+                      border: "none",
+                      borderRadius: "50%",
+                      width: "22px",
+                      height: "22px",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      cursor: "pointer"
+                    }}
+                    title="Remove Photo"
+                  >
+                    <X size={12} />
+                  </button>
+                </div>
+              )}
+
               <input
                 type="url"
                 value={formData.image_url}
                 onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
-                placeholder="https://images.unsplash.com/photo-..."
+                placeholder="Or paste an image URL (e.g. https://...)..."
                 className="civic-input"
               />
             </div>
