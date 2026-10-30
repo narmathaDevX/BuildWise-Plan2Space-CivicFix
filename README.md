@@ -256,18 +256,18 @@ buildwise-plan2space-civicfix/
 
 ---
 
-## Prompts Used to Build & Document This Project
+## Prompts Used for Creating This README
 
-Here are the actual, simple prompts used to guide the AI while building and documenting the integration:
+Here are the simple, human prompts used to generate and structure this README documentation:
 
-### Prompt 1: Connecting BuildWise to CivicFix
-> *"Hey, I have two projects: BuildWise (FastAPI + React for house planning) and CivicFix (FastAPI for city complaints). I want BuildWise to talk to CivicFix so when a user enters a plot location, it pulls real issues in that area, calculates an infrastructure risk score from 0 to 100, and gives construction safety warnings (like low-hanging power cables or waterlogged roads). Can you write the FastAPI service to connect them with a service account and JWT token?"*
+### Prompt 1: Initial Technical README & Setup Guide
+> *"Update the README for `BuildWise-Plan2Space-CivicFix`. I need a practical setup guide written like a tech person explaining it to another developer. Include step-by-step instructions on how to open the project in VS Code, configure `.env` files, run the FastAPI backend with uvicorn, and launch the React frontend with npm. Also include our live production URLs for both BuildWise and CivicFix."*
 
-### Prompt 2: Two-Way Image Sharing
-> *"I need to send site photos back and forth between BuildWise and CivicFix. If someone uploads a hazard image on CivicFix, forward it to BuildWise and show it on the BuildWise dashboard. And if a user uploads an image on BuildWise, send it back to CivicFix. Show me how to set up the FastAPI endpoints on both ends using multipart form-data so images appear immediately without refresh issues."*
+### Prompt 2: Adding Port Conflict Troubleshooting
+> *"In the backend setup section, add a quick fix for the `[Errno 48] Address already in use` error when running Uvicorn on port 8000. Give the exact command (`lsof -ti:8000 | xargs kill -9`) so anyone running this locally can free the port and get started immediately without getting stuck."*
 
-### Prompt 3: Writing the Developer Setup & README Guide
-> *"Can you write a clean and simple README for this repository? I want it to sound like a developer explaining it to another human. Walk through opening the folder in VS Code, setting up the .env files, running the backend with uvicorn, and starting the React frontend with npm. Also include how to fix the 'Address already in use on port 8000' error and direct links to our live deployed sites."*
+### Prompt 3: Humanizing the Tone & Explaining the Integration
+> *"Keep the tone human, clean, and simple. Explain the cross-platform connection between BuildWise and CivicFix (live hazard scoring and two-way image sync), and make the whole guide easy to follow for any developer cloning the repo."*
 
 ---
 
