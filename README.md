@@ -256,18 +256,18 @@ buildwise-plan2space-civicfix/
 
 ---
 
-## Engineering Prompts Used During Development
+## Prompts Used to Build & Document This Project
 
-Below are examples of the technical prompts used to design, integrate, and document this multi-service architecture:
+Here are the actual, simple prompts used to guide the AI while building and documenting the integration:
 
-### Prompt 1: Inter-Service Architecture & Contract Design
-> *"We are integrating two independent platforms: BuildWise (a residential construction planner on FastAPI/React) and CivicFix (a municipal grievance system on FastAPI/PostgreSQL). Design a clean, decoupled HTTP integration contract. BuildWise needs to authenticate as a dedicated service account (`buildwise_service@buildwise.internal`), fetch live tickets filtered by site coordinates or locality, calculate a real-time site infrastructure health score (0–100), and generate civil engineering advisories (e.g. NBC Part 8 clearance for sagging 11kV cables, plinth elevation requirements for blocked drainage culverts). Provide the complete FastAPI service layer with proper error handling and connection status fallbacks."*
+### Prompt 1: Connecting BuildWise to CivicFix
+> *"Hey, I have two projects: BuildWise (FastAPI + React for house planning) and CivicFix (FastAPI for city complaints). I want BuildWise to talk to CivicFix so when a user enters a plot location, it pulls real issues in that area, calculates an infrastructure risk score from 0 to 100, and gives construction safety warnings (like low-hanging power cables or waterlogged roads). Can you write the FastAPI service to connect them with a service account and JWT token?"*
 
-### Prompt 2: Bidirectional Image Synchronization Pipeline
-> *"Implement a real-time bidirectional media exchange pipeline between BuildWise and CivicFix. When an inspector or citizen uploads an on-site hazard photo on CivicFix, expose an outbound endpoint `POST /api/external/send-image` that streams multipart/form-data to BuildWise's `/api/civic/upload`. Conversely, allow BuildWise site engineers to submit hazard evidence back to CivicFix via `POST /api/external/receive-image`. Both services must store the assets with unique UUID prefixes, expose JSON feeds (`/api/civic/uploads` and `/api/external/received-feed`), and serve the images with proper MIME headers without caching lag."*
+### Prompt 2: Two-Way Image Sharing
+> *"I need to send site photos back and forth between BuildWise and CivicFix. If someone uploads a hazard image on CivicFix, forward it to BuildWise and show it on the BuildWise dashboard. And if a user uploads an image on BuildWise, send it back to CivicFix. Show me how to set up the FastAPI endpoints on both ends using multipart form-data so images appear immediately without refresh issues."*
 
-### Prompt 3: Production Developer Guide & Setup Documentation
-> *"Act as a Principal Software Engineer writing the root README for a monorepo containing BuildWise, Plan2Space 3D, and the CivicFix integration. The documentation must be clear, human-readable, and practical for fellow developers. Include live production deployment links, system architecture diagrams, and an unambiguous step-by-step guide to clone, configure environment variables, run backend and frontend servers locally, handle common port conflicts (such as `[Errno 48] Address already in use`), and verify the live API connection and image feeds via cURL."*
+### Prompt 3: Writing the Developer Setup & README Guide
+> *"Can you write a clean and simple README for this repository? I want it to sound like a developer explaining it to another human. Walk through opening the folder in VS Code, setting up the .env files, running the backend with uvicorn, and starting the React frontend with npm. Also include how to fix the 'Address already in use on port 8000' error and direct links to our live deployed sites."*
 
 ---
 
